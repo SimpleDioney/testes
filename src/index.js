@@ -1955,11 +1955,45 @@ function criarEmbedTutorial() {
   return new EmbedBuilder()
     .setColor(0x3498DB)
     .setTitle('📚 Tutorial do Bot')
-    .setDescription('Bem-vindo! Aqui estão os comandos disponíveis:')
+    .setDescription('Bem-vindo ao tutorial do bot! Aqui você aprenderá como usar todos os comandos disponíveis.')
     .addFields(
-      { name: '📝 Comandos Básicos', value: 'Use os botões abaixo para executar os comandos:' }
+      { 
+        name: '📝 Tutorial de Registro', 
+        value: '**Como se registrar no servidor:**\n\n' +
+               '1️⃣ **Comando de Registro**\n' +
+               'Use o comando `/registro` para iniciar o processo de registro. Um formulário será aberto para você digitar seu email.\n\n' +
+               '2️⃣ **Validação do Email**\n' +
+               'O email deve ser válido e estar cadastrado em nossa base de clientes. Se não estiver, você não poderá se registrar.\n\n' +
+               '3️⃣ **Vinculação Automática**\n' +
+               'Após o registro, você será automaticamente vinculado ao seu cliente e receberá o cargo correspondente ao seu plano.\n\n' +
+               '4️⃣ **Verificação**\n' +
+               'Use o comando `/meu-email` para verificar seu email registrado e informações do seu plano.\n\n' +
+               '5️⃣ **Desvinculação**\n' +
+               'Se precisar desvincular seu email, use o comando `/desvincular`. Isso removerá seu cargo de plano.',
+        inline: false
+      },
+      {
+        name: '🔍 Comandos Disponíveis',
+        value: '**Principais comandos do bot:**\n\n' +
+               '📧 `/registro` - Registra seu email no sistema\n' +
+               'ℹ️ `/meu-email` - Mostra informações do seu email registrado\n' +
+               '🔍 `/verificar-email` - Verifica se um email está na base de dados\n' +
+               '❌ `/desvincular` - Remove seu email registrado\n\n' +
+               '**Comandos Administrativos:**\n' +
+               '👥 `/admin-vinculos` - Lista todos os vínculos (apenas administradores)\n' +
+               '🔄 `/auto-link` - Executa vinculação automática (apenas administradores)',
+        inline: false
+      },
+      {
+        name: '⚠️ Observações Importantes',
+        value: '• Seu email deve estar cadastrado em nossa base de clientes\n' +
+               '• Você só pode ter um email vinculado por vez\n' +
+               '• Ao desvincular, você perderá o cargo do plano\n' +
+               '• Em caso de dúvidas, contate um administrador',
+        inline: false
+      }
     )
-    .setFooter({ text: 'Clique nos botões para executar os comandos' })
+    .setFooter({ text: 'Use os botões abaixo para executar os comandos rapidamente' })
     .setTimestamp();
 }
 
