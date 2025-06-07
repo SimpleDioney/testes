@@ -2018,8 +2018,20 @@ function criarBotoesTutorial() {
   return row;
 }
 
-// Set para armazenar canais com restrição de links
-const canaisRestritos = new Set();
+// Carrega os canais restritos do banco de dados ao iniciar
+let canaisRestritos = new Set();
+
+// Função para carregar canais restritos
+async function carregarCanaisRestritos() {
+  const result = await db.getRestrictedChannels();
+  if (result.success) {
+    canaisRestritos = new Set(result.data);
+    console.log(`[DEBUG] Canais restritos carregados: ${canaisRestritos.size}`);
+  }
+}
+
+// Chama a função ao iniciar o bot
+carregarCanaisRestritos();
 
 // Adicione isso após os outros eventos
 client.on(Events.MessageCreate, async message => {
@@ -2037,6 +2049,27 @@ client.on(Events.MessageCreate, async message => {
         setTimeout(() => warning.delete().catch(() => {}), 5000);
       } catch (error) {
         console.error('Erro ao deletar mensagem com link:', error);
+      }
+    }
+  }
+});
+
+// Adicione isso após o evento MessageCreate
+client.on(Events.MessageUpdate, async (oldMessage, newMessage) => {
+  if (newMessage.author.bot) return;
+  
+  if (canaisRestritos.has(newMessage.channelId)) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    if (urlRegex.test(newMessage.content)) {
+      try {
+        await newMessage.delete();
+        const warning = await newMessage.channel.send({
+          content: `${newMessage.author} ❌ Links não são permitidos neste canal.`,
+          ephemeral: true
+        });
+        setTimeout(() => warning.delete().catch(() => {}), 5000);
+      } catch (error) {
+        console.error('Erro ao deletar mensagem editada com link:', error);
       }
     }
   }

@@ -75,6 +75,17 @@ function initDatabase() {
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_user_links_user_id ON user_links(user_id)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_user_links_customer_id ON user_links(customer_id)`).run();
 
+    // Cria tabela de canais restritos
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS restricted_channels (
+        channel_id TEXT PRIMARY KEY,
+        restricted_at INTEGER DEFAULT (strftime('%s','now'))
+      )
+    `).run();
+
+    // Cria índice para melhorar a busca por channel_id
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_restricted_channels_channel_id ON restricted_channels(channel_id)`).run();
+
     console.log('Banco de dados inicializado com sucesso!');
     
     // Inicia o intervalo de checkpoint
@@ -421,6 +432,49 @@ async function autoLinkEmailsToCustomers() {
   }
 }
 
+// Função para adicionar um canal restrito
+function addRestrictedChannel(channelId) {
+  try {
+    const stmt = db.prepare(`
+      INSERT OR REPLACE INTO restricted_channels (channel_id)
+      VALUES (?)
+    `);
+    
+    const result = stmt.run(channelId);
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao adicionar canal restrito:', error);
+    return { success: false, error: 'DATABASE_ERROR' };
+  }
+}
+
+// Função para remover um canal restrito
+function removeRestrictedChannel(channelId) {
+  try {
+    const stmt = db.prepare('DELETE FROM restricted_channels WHERE channel_id = ?');
+    const result = stmt.run(channelId);
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao remover canal restrito:', error);
+    return { success: false, error: 'DATABASE_ERROR' };
+  }
+}
+
+// Função para obter todos os canais restritos
+function getRestrictedChannels() {
+  try {
+    const stmt = db.prepare('SELECT channel_id FROM restricted_channels');
+    const results = stmt.all();
+    return { 
+      success: true, 
+      data: results.map(row => row.channel_id)
+    };
+  } catch (error) {
+    console.error('Erro ao buscar canais restritos:', error);
+    return { success: false, error: 'DATABASE_ERROR' };
+  }
+}
+
 // Exporta as funções
 module.exports = {
   initDatabase,
@@ -436,5 +490,9 @@ module.exports = {
   getAllEmails,
   getAllLinks,
   autoLinkEmailsToCustomers,
-  closeDatabase
+  closeDatabase,
+  // Novas funções
+  addRestrictedChannel,
+  removeRestrictedChannel,
+  getRestrictedChannels
 }; 
