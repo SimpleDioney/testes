@@ -1979,7 +1979,7 @@ function criarEmbedTutorial() {
                'ℹ️ `/meu-email` - Mostra informações do seu email registrado\n' +
                '🔍 `/verificar-email` - Verifica se um email está na base de dados\n' +
                '❌ `/desvincular` - Remove seu email registrado\n\n' +
-               '**Comandos Administrativos:**\n' +,
+               '**Comandos Administrativos:**\n',
         inline: false
       },
       {
