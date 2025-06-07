@@ -1419,10 +1419,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
         }
       }
       else if (interaction.customId === 'desvincular_email') {
-        // Busca o email atual do usuário para usar no embed
-        const emailAtual = db.getEmailByUserId(interaction.user.id);
-        
-        if (emailAtual.success && emailAtual.data) {
+        try {
+          // Busca o email atual do usuário para usar no embed
+          const emailAtual = await db.getEmailByUserId(interaction.user.id);
+          
+          if (!emailAtual.success || !emailAtual.data) {
+            const embed = criarEmbedErroDesvincular();
+            return await interaction.update({
+              embeds: [embed],
+              components: []
+            });
+          }
+
           const email = emailAtual.data.email;
           
           // Tenta remover os cargos de planos, se estiver em um servidor
@@ -1438,32 +1446,37 @@ client.on(Events.InteractionCreate, async (interaction) => {
           }
           
           // Remove a vinculação com o cliente, se existir
-          db.unlinkUser(interaction.user.id);
+          await db.unlinkUser(interaction.user.id);
           
           // Desvincular o email
-          const resultado = db.unregisterEmail(interaction.user.id);
+          const resultado = await db.unregisterEmail(interaction.user.id);
           
-          if (resultado.success) {
-            // Cria o embed de sucesso com informação sobre cargos
-            const embed = criarEmbedDesvinculacaoComCargos(email, cargosRemovidos);
-            
-            await interaction.update({
-              embeds: [embed],
-              components: []
-            });
-          } else {
-            // Erro ao desvincular (improvável chegar aqui)
+          if (!resultado.success) {
             const embed = criarEmbedErroDesvincular();
-            
-            await interaction.update({
+            return await interaction.update({
               embeds: [embed],
               components: []
             });
           }
-        } else {
-          // Erro ao desvincular
-          const embed = criarEmbedErroDesvincular();
+
+          // Cria o embed de sucesso com informação sobre cargos
+          const embed = criarEmbedDesvinculacaoComCargos(email, cargosRemovidos);
           
+          await interaction.update({
+            embeds: [embed],
+            components: []
+          });
+        } catch (error) {
+          console.error('Erro ao processar desvinculação:', error);
+          const embed = new EmbedBuilder()
+            .setColor(0xFF0000)
+            .setTitle('⚠️ Erro no Sistema')
+            .setDescription('**Ocorreu um erro ao processar seu comando.**')
+            .addFields(
+              { name: '🔄 Próximos Passos', value: 'Por favor, tente novamente mais tarde.\nSe o problema persistir, contate o administrador' }
+            )
+            .setTimestamp();
+
           await interaction.update({
             embeds: [embed],
             components: []
@@ -1491,7 +1504,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       }
       else if (interaction.customId === 'comando_info') {
         const emailData = await db.getUserEmail(interaction.user.id);
-        if (!emailData.success) {
+        if (!emailData.success || !emailData.data) {
           return interaction.reply({
             embeds: [criarEmbedErroDesvincular()],
             flags: [4096] // Ephemeral flag
@@ -1504,13 +1517,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
       }
       else if (interaction.customId === 'comando_desvincular') {
         const emailData = await db.getUserEmail(interaction.user.id);
-        if (!emailData.success) {
+        if (!emailData.success || !emailData.data) {
           return interaction.reply({
             embeds: [criarEmbedErroDesvincular()],
             flags: [4096] // Ephemeral flag
           });
         }
-        await db.unregisterEmail(interaction.user.id);
+        const result = await db.unregisterEmail(interaction.user.id);
+        if (!result.success) {
+          return interaction.reply({
+            embeds: [criarEmbedErroDesvincular()],
+            flags: [4096] // Ephemeral flag
+          });
+        }
         await interaction.reply({
           embeds: [criarEmbedDesvinculacao(emailData.data.email)],
           flags: [4096] // Ephemeral flag
