@@ -1979,9 +1979,7 @@ function criarEmbedTutorial() {
                'ℹ️ `/meu-email` - Mostra informações do seu email registrado\n' +
                '🔍 `/verificar-email` - Verifica se um email está na base de dados\n' +
                '❌ `/desvincular` - Remove seu email registrado\n\n' +
-               '**Comandos Administrativos:**\n' +
-               '👥 `/admin-vinculos` - Lista todos os vínculos (apenas administradores)\n' +
-               '🔄 `/auto-link` - Executa vinculação automática (apenas administradores)',
+               '**Comandos Administrativos:**\n' +,
         inline: false
       },
       {
