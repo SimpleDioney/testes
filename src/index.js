@@ -1506,7 +1506,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const emailData = await db.getUserEmail(interaction.user.id);
         if (!emailData.success || !emailData.data) {
           return interaction.reply({
-            embeds: [criarEmbedErroDesvincular()],
+            embeds: [criarEmbedErroSemEmail()],
             flags: [4096] // Ephemeral flag
           });
         }
@@ -2109,3 +2109,16 @@ client.on(Events.MessageUpdate, async (oldMessage, newMessage) => {
     }
   }
 });
+
+// Função para criar embed de erro quando usuário não tem email
+function criarEmbedErroSemEmail() {
+  return new EmbedBuilder()
+    .setColor(0xFF0000)
+    .setTitle('❌ Email Não Registrado')
+    .setDescription('**Você ainda não possui nenhum email registrado.**')
+    .addFields(
+      { name: '🔍 Próximos Passos', value: 'Use o comando `/registro` para registrar seu email.' }
+    )
+    .setFooter({ text: 'Se acredita que isso é um erro, contate um administrador.' })
+    .setTimestamp();
+}
