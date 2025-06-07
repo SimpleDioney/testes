@@ -1978,8 +1978,7 @@ function criarEmbedTutorial() {
                '📧 `/registro` - Registra seu email no sistema\n' +
                'ℹ️ `/meu-email` - Mostra informações do seu email registrado\n' +
                '🔍 `/verificar-email` - Verifica se um email está na base de dados\n' +
-               '❌ `/desvincular` - Remove seu email registrado\n\n' +
-               '**Comandos Administrativos:**\n',
+               '❌ `/desvincular` - Remove seu email registrado\n\n',
         inline: false
       },
       {

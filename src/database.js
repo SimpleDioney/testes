@@ -131,6 +131,11 @@ function getEmailByUserId(userId) {
   }
 }
 
+// Alias para getEmailByUserId para manter compatibilidade
+function getUserEmail(userId) {
+  return getEmailByUserId(userId);
+}
+
 // Obtém informações sobre um email
 function getEmailInfo(email) {
   try {
@@ -422,6 +427,7 @@ module.exports = {
   registerEmail,
   isEmailRegistered,
   getEmailByUserId,
+  getUserEmail,
   getEmailInfo,
   unregisterEmail,
   linkUserToCustomer,
