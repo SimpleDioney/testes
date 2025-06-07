@@ -180,8 +180,12 @@ function criarEmbedErroDesvincular() {
 
 // Função para criar embed de informações do usuário
 function criarEmbedInfoUsuario(emailData) {
+  if (!emailData || !emailData.data) {
+    return criarEmbedErroDesvincular();
+  }
+
   // Para timestamp do SQLite (armazenado em segundos)
-  let timestamp = emailData.registered_at;
+  let timestamp = emailData.data.registered_at;
   
   // Garantir que estamos trabalhando com segundos para o Discord
   if (timestamp > 10000000000) { // Se for em milissegundos
@@ -194,12 +198,12 @@ function criarEmbedInfoUsuario(emailData) {
   let planoInfo = null;
   
   // Verifica se existe uma vinculação para este usuário
-  const vinculacao = db.getUserLink(emailData.user_id);
+  const vinculacao = db.getUserLink(emailData.data.user_id);
   if (vinculacao.success) {
     clienteId = vinculacao.data.customer_id;
     
     // Busca os dados do cliente
-    const cliente = customerDb.getCustomerByEmail(emailData.email);
+    const cliente = customerDb.getCustomerByEmail(emailData.data.email);
     if (cliente.success) {
       clienteInfo = cliente.data.Customer;
       planoInfo = cliente.data.Customer.Plan;
@@ -212,9 +216,9 @@ function criarEmbedInfoUsuario(emailData) {
     .setTitle('ℹ️ Informações de Registro')
     .setDescription(`**Detalhes do seu registro atual:**`)
     .addFields(
-      { name: '📧 E-mail', value: `\`${emailData.email}\``, inline: true },
+      { name: '📧 E-mail', value: `\`${emailData.data.email}\``, inline: true },
       { name: '🕒 Data de Registro', value: `<t:${timestamp}:F>`, inline: false },
-      { name: '👤 ID do Usuário', value: `\`${emailData.user_id}\``, inline: false }
+      { name: '👤 ID do Usuário', value: `\`${emailData.data.user_id}\``, inline: false }
     );
   
   // Adiciona informações do cliente se disponíveis
