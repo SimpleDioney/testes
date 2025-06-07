@@ -1366,17 +1366,33 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
         const channelId = interaction.channelId;
         if (canaisRestritos.has(channelId)) {
-          canaisRestritos.delete(channelId);
-          await interaction.reply({
-            content: '✅ Restrição de links removida deste canal.',
-            ephemeral: true
-          });
+          const result = await db.removeRestrictedChannel(channelId);
+          if (result.success) {
+            canaisRestritos.delete(channelId);
+            await interaction.reply({
+              content: '✅ Restrição de links removida deste canal.',
+              flags: [4096] // Ephemeral flag
+            });
+          } else {
+            await interaction.reply({
+              content: '❌ Erro ao remover restrição do canal.',
+              flags: [4096] // Ephemeral flag
+            });
+          }
         } else {
-          canaisRestritos.add(channelId);
-          await interaction.reply({
-            content: '✅ Links agora são restritos neste canal.',
-            ephemeral: true
-          });
+          const result = await db.addRestrictedChannel(channelId);
+          if (result.success) {
+            canaisRestritos.add(channelId);
+            await interaction.reply({
+              content: '✅ Links agora são restritos neste canal.',
+              flags: [4096] // Ephemeral flag
+            });
+          } else {
+            await interaction.reply({
+              content: '❌ Erro ao adicionar restrição ao canal.',
+              flags: [4096] // Ephemeral flag
+            });
+          }
         }
       }
     }
@@ -1478,12 +1494,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
         if (!emailData.success) {
           return interaction.reply({
             embeds: [criarEmbedErroDesvincular()],
-            ephemeral: true
+            flags: [4096] // Ephemeral flag
           });
         }
         await interaction.reply({
           embeds: [criarEmbedInfoUsuario(emailData.data)],
-          ephemeral: true
+          flags: [4096] // Ephemeral flag
         });
       }
       else if (interaction.customId === 'comando_desvincular') {
@@ -1491,13 +1507,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
         if (!emailData.success) {
           return interaction.reply({
             embeds: [criarEmbedErroDesvincular()],
-            ephemeral: true
+            flags: [4096] // Ephemeral flag
           });
         }
-        await db.removeUserEmail(interaction.user.id);
+        await db.unregisterEmail(interaction.user.id);
         await interaction.reply({
           embeds: [criarEmbedDesvinculacao(emailData.data.email)],
-          ephemeral: true
+          flags: [4096] // Ephemeral flag
         });
       }
     }
